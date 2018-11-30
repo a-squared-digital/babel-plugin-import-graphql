@@ -2,6 +2,7 @@ import {readFileSync, readdirSync, statSync} from 'fs'
 import path from 'path'
 
 import {newlinePattern} from './constants'
+import {missingQuotations, nonExistentFile} from './errorMessages'
 
 const walk = function (dir, targetFilename) {
   let results = []
@@ -9,10 +10,10 @@ const walk = function (dir, targetFilename) {
   list.forEach(function (file) {
     file = path.join(dir, file)
     const stat = statSync(file)
-    if (stat && stat.isDirectory()) {
+    if (stat && stat.isDirectory() && !dir.match('/node_modules|android|ios/g')) {
       /* Recurse into a subdirectory */
       results = results.concat(walk(file, targetFilename))
-    } else if (path.parse(file).name === targetFilename) {
+    } else if (path.basename(file) === targetFilename) {
       /* Is a file */
       results.push(file)
     }
@@ -24,10 +25,17 @@ export function getFilepaths(src, relFile, resolve) {
   const imports = src.split(newlinePattern).filter(line => line.startsWith('#import'))
   return imports.map(statement => {
     if (statement.startsWith('#importu')) {
-      const filename = statement.split(/[\s\n]+/g)[1]
-      const importPath = walk('.', filename)[0]
+      const filename = statement.split(/[\s\n]+/g)[1] + '.graphql'
+      const possibleFiles = walk('.', filename)
+      if (possibleFiles.length === 0) {
+        throw new Error(nonExistentFile(filename))
+      }
+      const importPath = possibleFiles[0]
       return resolve(importPath, '.')
     } else {
+      if (!statement.match(/".*"/g)) {
+        throw new Error(missingQuotations)
+      }
       const importPath = statement.split(/[\s\n]+/g)[1].slice(1, -1)
       return resolve(importPath, relFile)
     }
@@ -35,7 +43,6 @@ export function getFilepaths(src, relFile, resolve) {
 }
 
 export function getSources(filepath, resolve, acc = []) {
-  console.log(filepath)
   const importSrc = readFileSync(filepath.replace(/'/g, '')).toString()
   const nestedPaths = getFilepaths(importSrc, filepath, resolve)
   const srcs =
