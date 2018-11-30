@@ -1,7 +1,9 @@
 #import "./levelTwo.graphql"
 #import "./levelTwoBis.graphql"
+#importu UniqueLevel
 
 type LevelOne {
   levelTwo: LevelTwo
   levelTwoBis: LevelTwoBis
+  uniqueLevel: UniqueLevel
 }

@@ -26,11 +26,16 @@ exports[`parse schema file at runtime concatenates multiple levels of #imported 
 type LevelTwoBis {
   test: String!
 }
+type UniqueLevel {
+    test: String!
+}
+
 
 
 type LevelOne {
   levelTwo: LevelTwo
   levelTwoBis: LevelTwoBis
+  uniqueLevel: UniqueLevel
 }
 type LevelOneBis {
   levelTwo: LevelTwo

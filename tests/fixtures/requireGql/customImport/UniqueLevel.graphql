@@ -1,0 +1,3 @@
+type UniqueLevel {
+    test: String!
+}
