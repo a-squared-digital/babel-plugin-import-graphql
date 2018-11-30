@@ -23,11 +23,6 @@
     "test": "jest",
     "prepare": "babel plugin --out-dir build"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "dependencies": {
     "graphql-tag": "^2.9.2"
   },

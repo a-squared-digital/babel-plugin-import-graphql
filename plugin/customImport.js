@@ -1,12 +1,12 @@
-import { readFileSync, readdirSync, statSync } from 'fs'
+import {readFileSync, readdirSync, statSync} from 'fs'
 import path from 'path'
 
-import { newlinePattern } from './constants'
+import {newlinePattern} from './constants'
 
-const walk = function(dir, targetFilename) {
+const walk = function (dir, targetFilename) {
   let results = []
   const list = readdirSync(dir)
-  list.forEach(function(file) {
+  list.forEach(function (file) {
     file = path.join(dir, file)
     const stat = statSync(file)
     if (stat && stat.isDirectory()) {
@@ -35,14 +35,15 @@ export function getFilepaths(src, relFile, resolve) {
 }
 
 export function getSources(filepath, resolve, acc = []) {
+  console.log(filepath)
   const importSrc = readFileSync(filepath.replace(/'/g, '')).toString()
   const nestedPaths = getFilepaths(importSrc, filepath, resolve)
   const srcs =
     nestedPaths.length > 0
       ? [
-          ...nestedPaths.reduce((srcArr, fp) => [...srcArr, ...getSources(fp, resolve, [])], []),
-          importSrc
-        ]
+        ...nestedPaths.reduce((srcArr, fp) => [...srcArr, ...getSources(fp, resolve, [])], []),
+        importSrc
+      ]
       : [importSrc]
   return [...srcs, ...acc]
 }
